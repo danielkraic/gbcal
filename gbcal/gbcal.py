@@ -9,12 +9,7 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
-# If modifying these scopes, delete your previously saved credentials
-# at ~/.credentials/calendar-python-quickstart.json
-SCOPES = 'https://www.googleapis.com/auth/calendar'
-CLIENT_SECRET_FILE = 'gbcal_client_secret.json'
-APPLICATION_NAME = 'gcal'
-CALENDAR_NAME = 'gbcal'
+import config
 
 class GBCal:
     """
@@ -51,13 +46,13 @@ class GBCal:
         credential_dir = os.path.join(home_dir, '.credentials')
         if not os.path.exists(credential_dir):
             os.makedirs(credential_dir)
-        credential_path = os.path.join(credential_dir, CLIENT_SECRET_FILE)
+        credential_path = os.path.join(credential_dir, config.CLIENT_SECRET_FILE)
 
         store = Storage(credential_path)
         credentials = store.get()
         if not credentials or credentials.invalid:
-            flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
-            flow.user_agent = APPLICATION_NAME
+            flow = client.flow_from_clientsecrets(config.CLIENT_SECRET_FILE, config.GOOGLE_API_SCOPES)
+            flow.user_agent = config.GOOGLE_API_APP_NAME
             if flags:
                 credentials = tools.run_flow(flow, store, flags)
             else: # Needed only for compatibility with Python 2.6
@@ -80,14 +75,14 @@ class GBCal:
         # get calendar
         cal_id = None
         for c in clist:
-            if c['summary'].lower() == CALENDAR_NAME.lower():
+            if c['summary'].lower() == config.GOOGLE_CALENDAR_NAME:
                 cal_id = c['id']
                 break
         
         # create calendar if not exist
         if not cal_id:
             if not create_if_not_exist:
-                err = "Calendar '{}' not exist".format(CALENDAR_NAME)
+                err = "Calendar '{}' not exist".format(config.GOOGLE_CALENDAR_NAME)
                 raise Exception(err)
 
             cal = self.__service.calendars().insert(body={
@@ -96,7 +91,7 @@ class GBCal:
                 "timeZone": "Europe/Prague"
             }).execute()
 
-            logging.debug("calendar {} was created".format(CALENDAR_NAME))
+            logging.debug("calendar {} was created".format(config.CALENDAR_NAME))
             cal_id = cal['id']
             
         return cal_id
