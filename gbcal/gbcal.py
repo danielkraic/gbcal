@@ -1,13 +1,8 @@
-#!/usr/bin/env python2
-
-from __future__ import print_function
 import httplib2
 import os
-import json
-import sys
 import re
 import datetime
-from pprint import pprint
+import logging
 
 from apiclient import discovery
 from oauth2client import client
@@ -21,66 +16,14 @@ CLIENT_SECRET_FILE = 'gbcal_client_secret.json'
 APPLICATION_NAME = 'gcal'
 CALENDAR_NAME = 'gbcal'
 
-def usage():
-    usage="""{app} - google bithday calendar
-
-Usage:
-
-- list birthday:
-  {app} name_regex
-
-- add birthday:
-  {app} -a name date(DD.MM.YYYY)
-""".format(app=os.path.basename(sys.argv[0]))
-
-    print(usage)
-    sys.exit(1)
-
-def main():
-    find_regex = None
-    
-    if len(sys.argv) == 1:
-        pass
-
-    elif len(sys.argv) == 2:
-        if sys.argv[1] == '-h':
-            usage()
-        else:
-            find_regex = sys.argv[1]
-
-    elif len(sys.argv) == 4 and sys.argv[1] == '-a':
-        add_event(name=sys.argv[2], date=sys.argv[3])        
-        return
-    
-    else:
-        print("Invalid usage. Use -h")
-    
-    find_event(regex=find_regex)
-
-
-def add_event(name, date):
-    cal = GBCal(create_if_not_exist=False)
-    cal.add_event(name=name, date=date)
-
-def find_event(regex=None):
-    cal = GBCal(create_if_not_exist=False)
-    
-    if regex:
-        print_events(events=[e for e in cal.get_events() if e['summary'].find(regex) >= 0])
-    else:
-        print_events(events=cal.get_events())
-
-def print_events(events):
-    if not events:
-        print('No bithdays found.')
-
-    events_sorted = sorted(events, key=lambda k: k['start']) 
-    for event in events_sorted:
-        start = event['start'].get('dateTime', event['start'].get('date'))
-        print(start, event['summary'])
-
 class GBCal:
+    """
+    Class to manage google birthday calendar
+    """
     def __init__(self, create_if_not_exist=False):
+        """
+        Create GBCal object
+        """
         self.__service = self.__get_service()
         self.__cal_id = self.__get_calendar_id(create_if_not_exist=create_if_not_exist)
         
@@ -119,7 +62,7 @@ class GBCal:
                 credentials = tools.run_flow(flow, store, flags)
             else: # Needed only for compatibility with Python 2.6
                 credentials = tools.run(flow, store)
-            print('Storing credentials to ' + credential_path)
+            logging.debug('Storing credentials to ' + credential_path)
         
         return credentials
 
@@ -153,7 +96,7 @@ class GBCal:
                 "timeZone": "Europe/Prague"
             }).execute()
 
-            print("calendar {} was created".format(CALENDAR_NAME))
+            logging.debug("calendar {} was created".format(CALENDAR_NAME))
             cal_id = cal['id']
             
         return cal_id
@@ -199,6 +142,3 @@ class GBCal:
                 "recurrence": ["RRULE:FREQ=YEARLY"],
             }
         ).execute()
-
-if __name__ == '__main__':
-    main()
