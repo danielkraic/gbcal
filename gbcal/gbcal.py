@@ -109,7 +109,7 @@ class GBCal:
         events = eventsResult.get('items', [])
 
         if regex:
-            return [e for e in events if e['summary'].find(regex) >= 0]
+            return [e for e in events if re.search(regex, e['summary'])]
         else:
             return events
     

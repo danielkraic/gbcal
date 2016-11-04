@@ -1,4 +1,5 @@
-from distutils.core import setup
+# from distutils.core import setup
+from setuptools import setup
 
 setup(
     name="gbcal",
@@ -8,10 +9,12 @@ setup(
     author_email="danielkraic@gmail.com",
     url="https://github.com/danielkraic/gbcal",
     packages=["gbcal"],
+    license='MIT',
     install_requires=[
           'google-api-python-client',
       ],
     entry_points = {
-        'console_scripts': ['gbcal=gbcal.main:main'],
-    }
+        'console_scripts':
+            ['gbcal = gbcal.main:main'],
+    },
 )
