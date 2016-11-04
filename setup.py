@@ -1,9 +1,8 @@
-# from distutils.core import setup
 from setuptools import setup
 
 setup(
     name="gbcal",
-    version='1.0',
+    version='1.1',
     description="cli tool to manage google birthday calendar",
     author="Daniel Kraic",
     author_email="danielkraic@gmail.com",
